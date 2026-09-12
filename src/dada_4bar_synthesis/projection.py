@@ -144,8 +144,8 @@ def evaluate_four_bar(
     """Evaluate one complete-rotation four-bar with crank radius normalized to 1."""
 
     theta = np.asarray(theta_rad, dtype=float)
-    if theta.ndim != 1 or theta.size < 4 or not np.all(np.isfinite(theta)):
-        raise ValueError("theta_rad must be a one-dimensional finite sample array.")
+    if theta.ndim != 1 or theta.size < 1 or not np.all(np.isfinite(theta)):
+        raise ValueError("theta_rad must be a one-dimensional finite non empty sample array.")
     if not math.isfinite(singularity_tolerance) or singularity_tolerance <= 0.0:
         raise ValueError("singularity_tolerance must be finite and positive.")
 
