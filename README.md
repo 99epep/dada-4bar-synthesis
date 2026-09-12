@@ -31,12 +31,23 @@ compatibility input.
 
 ## Output
 
-The synthesis result mirrors the low-level types already present in
-`dada_solver.four_bar`:
+The current synthesis stage exports a normalized four-bar geometry and a
+projection-only output-point definition.
 
-- `FourBarLoop`;
-- `RockerOutputPoint` or `CouplerOutputPoint`;
-- `SliderConstraint`;
-- `SharedCrankFourBarVolumeKinematics`.
+The result contains enough information to reconstruct:
 
-No alternative mechanical convention is introduced here.
+* the four-bar loop geometry;
+* the assembly branch;
+* a rocker-fixed or coupler-fixed output point;
+* the projection-axis orientation;
+* normalized fit metrics against the target motion.
+
+At this stage, the piston connection is still idealized as a direct projection
+of the output point onto the piston axis.
+
+A finite piston connecting rod, slider-axis origin, absolute physical scale and
+piston dimensions are intentionally left for a later mechanical refinement
+stage.
+
+The resulting geometry is designed to remain directly mappable to the low-level
+mechanism classes already present in `dada-engine-solver`.
