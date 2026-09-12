@@ -19,8 +19,94 @@ def _positive(name: str, value: float) -> None:
 
 
 @dataclass(frozen=True, slots=True)
+class CylinderTargetLimits:
+    """Physical cylinder-volume limits carried by a synthesis target."""
+
+    minimum_m3: float
+    maximum_m3: float
+
+    def __post_init__(self) -> None:
+        _positive("minimum volume", self.minimum_m3)
+        _positive("maximum volume", self.maximum_m3)
+        if self.maximum_m3 <= self.minimum_m3:
+            raise ValueError("Maximum volume must exceed minimum volume.")
+
+    @property
+    def swept_m3(self) -> float:
+        return self.maximum_m3 - self.minimum_m3
+
+
+@dataclass(frozen=True, slots=True)
+class SampledMotionTarget:
+    """Sampled two-cylinder target emitted by dada-engine-solver.
+
+    The shape coordinates are dimensionless centered motions, normally in the
+    solver's -1..+1 convention. Angles are study angles in radians. A duplicated
+    2*pi endpoint must already have been removed by the loader.
+    """
+
+    theta_rad: tuple[float, ...]
+    small_q: tuple[float, ...]
+    large_q: tuple[float, ...]
+    small_dq_dtheta: tuple[float, ...]
+    large_dq_dtheta: tuple[float, ...]
+    small_limits: CylinderTargetLimits
+    large_limits: CylinderTargetLimits
+    small_d2q_dtheta2: tuple[float, ...] | None = None
+    large_d2q_dtheta2: tuple[float, ...] | None = None
+    angle_convention: str = "study_angle_radians"
+    source_purpose: str | None = None
+    sample_step_deg: float | None = None
+
+    def __post_init__(self) -> None:
+        n = len(self.theta_rad)
+        if n < 4:
+            raise ValueError("At least four unique angular samples are required.")
+
+        required = (
+            ("small_q", self.small_q),
+            ("large_q", self.large_q),
+            ("small_dq_dtheta", self.small_dq_dtheta),
+            ("large_dq_dtheta", self.large_dq_dtheta),
+        )
+        optional = (
+            ("small_d2q_dtheta2", self.small_d2q_dtheta2),
+            ("large_d2q_dtheta2", self.large_d2q_dtheta2),
+        )
+        for name, values in required:
+            if len(values) != n:
+                raise ValueError(f"{name} must contain {n} samples.")
+            if not all(math.isfinite(value) for value in values):
+                raise ValueError(f"{name} samples must be finite.")
+        for name, values in optional:
+            if values is not None:
+                if len(values) != n:
+                    raise ValueError(f"{name} must contain {n} samples.")
+                if not all(math.isfinite(value) for value in values):
+                    raise ValueError(f"{name} samples must be finite.")
+
+        if not all(math.isfinite(value) for value in self.theta_rad):
+            raise ValueError("theta_rad samples must be finite.")
+        if not math.isclose(self.theta_rad[0], 0.0, abs_tol=1.0e-12):
+            raise ValueError("The target must start at study angle 0 rad.")
+        if any(right <= left for left, right in zip(self.theta_rad, self.theta_rad[1:])):
+            raise ValueError("theta_rad samples must be strictly increasing.")
+        if self.theta_rad[-1] >= 2.0 * math.pi - 1.0e-12:
+            raise ValueError("The duplicated 2*pi endpoint must not be stored in the target.")
+
+        if self.angle_convention != "study_angle_radians":
+            raise ValueError("Unsupported angle convention.")
+        if self.sample_step_deg is not None:
+            _positive("sample step", self.sample_step_deg)
+
+    @property
+    def sample_count(self) -> int:
+        return len(self.theta_rad)
+
+
+@dataclass(frozen=True, slots=True)
 class FreeMotionTarget:
-    """One free volume law as represented by dada-engine-solver."""
+    """Legacy/secondary input: one FreeKinematics motion definition."""
 
     control_values: tuple[float, ...]
     minimum_volume: float
@@ -38,10 +124,8 @@ class FreeMotionTarget:
         if self.maximum_volume <= self.minimum_volume:
             raise ValueError("Maximum volume must exceed minimum volume.")
         for name, value in (
-            ("maximum absolute first derivative",
-             self.maximum_absolute_first_derivative),
-            ("maximum absolute second derivative",
-             self.maximum_absolute_second_derivative),
+            ("maximum absolute first derivative", self.maximum_absolute_first_derivative),
+            ("maximum absolute second derivative", self.maximum_absolute_second_derivative),
         ):
             if value is not None:
                 _finite(name, value)
@@ -51,7 +135,7 @@ class FreeMotionTarget:
 
 @dataclass(frozen=True, slots=True)
 class FreeKinematicsTarget:
-    """Two-cylinder target law in the solver study-angle convention."""
+    """Secondary two-cylinder target in the solver study-angle convention."""
 
     small: FreeMotionTarget
     large: FreeMotionTarget
@@ -65,7 +149,7 @@ class FreeKinematicsTarget:
         if not math.isclose(self.cycle_angle, 2.0 * math.pi):
             raise ValueError("A DADA kinematic cycle must be 2*pi radians.")
         if self.source_kinematics_type != "free":
-            raise ValueError("Initial synthesis contract accepts free kinematics only.")
+            raise ValueError("Free-kinematics target must have source type 'free'.")
 
 
 @dataclass(frozen=True, slots=True)

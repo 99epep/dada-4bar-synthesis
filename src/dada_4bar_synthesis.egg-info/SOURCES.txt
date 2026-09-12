@@ -10,3 +10,4 @@ src/dada_4bar_synthesis.egg-info/dependency_links.txt
 src/dada_4bar_synthesis.egg-info/requires.txt
 src/dada_4bar_synthesis.egg-info/top_level.txt
 tests/test_io_contract.py
+tests/test_motion_target_io.py
