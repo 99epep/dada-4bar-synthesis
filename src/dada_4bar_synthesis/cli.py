@@ -27,6 +27,15 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--derivative-weight", type=float, default=0.0)
     parser.add_argument("--ratio-minimum", type=float, default=0.2)
     parser.add_argument("--ratio-maximum", type=float, default=6.0)
+    parser.add_argument(
+        "--max-output-to-coupler-ratio",
+        type=float,
+        default=None,
+        help=(
+            "Optional physical bound on |BF|/BC for coupler-point outputs. "
+            "Disabled by default."
+        ),
+    )
     parser.add_argument("--maximum-iterations", type=int, default=80)
     parser.add_argument("--population-size", type=int, default=10)
     parser.add_argument("--seed", type=int, default=27)
@@ -60,6 +69,7 @@ def main(argv: list[str] | None = None) -> int:
                     derivative_weight=args.derivative_weight,
                     ratio_minimum=args.ratio_minimum,
                     ratio_maximum=args.ratio_maximum,
+                    maximum_output_to_coupler_ratio=args.max_output_to_coupler_ratio,
                     maximum_iterations=args.maximum_iterations,
                     population_size=args.population_size,
                     seed=args.seed + search_index,
@@ -71,6 +81,14 @@ def main(argv: list[str] | None = None) -> int:
                     "assembly_branch": branch,
                     **result.to_dict(),
                 }
+                recovery = record["fit"].get("recovery")
+                if output_type == "coupler" and recovery is not None:
+                    record["output_to_coupler_ratio"] = (
+                        recovery["output_radius_ratio"]
+                        / record["geometry"]["coupler_ratio"]
+                    )
+                else:
+                    record["output_to_coupler_ratio"] = None
                 records.append(record)
 
     records.sort(key=lambda item: float(item["fit"]["objective_rms"]))
@@ -95,12 +113,19 @@ def main(argv: list[str] | None = None) -> int:
             f"min_cross={record['minimum_cross_product']:.6g}"
         )
         if recovery is not None:
+            extra = ""
+            if record["output_to_coupler_ratio"] is not None:
+                extra = (
+                    f" output_radius/coupler="
+                    f"{record['output_to_coupler_ratio']:.8g}"
+                )
             print(
                 "   "
                 f"axis={math.degrees(recovery['axis_angle_shared_crank_rad']):.4f} deg "
                 f"output_along/crank={recovery['output_along_ratio']:.8g} "
                 f"output_normal/crank={recovery['output_normal_ratio']:.8g} "
                 f"output_radius/crank={recovery['output_radius_ratio']:.8g}"
+                f"{extra}"
             )
 
     if args.result_json is not None:
@@ -116,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
                 "derivative_weight": args.derivative_weight,
                 "ratio_minimum": args.ratio_minimum,
                 "ratio_maximum": args.ratio_maximum,
+                "maximum_output_to_coupler_ratio": args.max_output_to_coupler_ratio,
                 "maximum_iterations": args.maximum_iterations,
                 "population_size": args.population_size,
                 "seed": args.seed,

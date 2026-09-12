@@ -376,6 +376,7 @@ def search_projection(
     derivative_weight: float = 0.0,
     ratio_minimum: float = 0.2,
     ratio_maximum: float = 6.0,
+    maximum_output_to_coupler_ratio: float | None = None,
     maximum_iterations: int = 80,
     population_size: int = 10,
     seed: int = 27,
@@ -389,6 +390,14 @@ def search_projection(
             raise ValueError(f"{name} must be finite and positive.")
     if ratio_maximum <= ratio_minimum:
         raise ValueError("ratio_maximum must exceed ratio_minimum.")
+    if maximum_output_to_coupler_ratio is not None:
+        if (
+            not math.isfinite(maximum_output_to_coupler_ratio)
+            or maximum_output_to_coupler_ratio <= 0.0
+        ):
+            raise ValueError(
+                "maximum_output_to_coupler_ratio must be finite and positive."
+            )
     if maximum_iterations <= 0 or population_size < 4:
         raise ValueError("Search iteration and population limits are too small.")
 
@@ -417,6 +426,23 @@ def search_projection(
             )
         except (ValueError, FloatingPointError, np.linalg.LinAlgError):
             return invalid_penalty
+
+        if (
+            output_type == "coupler"
+            and maximum_output_to_coupler_ratio is not None
+        ):
+            recovery = fit.recovery
+            if recovery is None:
+                return invalid_penalty
+            output_to_coupler = (
+                recovery.output_radius_ratio / geometry.coupler_ratio
+            )
+            if output_to_coupler > maximum_output_to_coupler_ratio:
+                excess = (
+                    output_to_coupler / maximum_output_to_coupler_ratio - 1.0
+                )
+                return fit.objective_rms + 100.0 * excess * excess
+
         return fit.objective_rms
 
     logarithmic_bounds = (math.log(ratio_minimum), math.log(ratio_maximum))
@@ -455,6 +481,19 @@ def search_projection(
         derivative_weight=derivative_weight,
         phase_rad=geometry.phase_rad,
     )
+    if (
+        output_type == "coupler"
+        and maximum_output_to_coupler_ratio is not None
+    ):
+        recovery = fit.recovery
+        if recovery is None:
+            raise ValueError("Search result has no physical coupler-point recovery.")
+        output_to_coupler = recovery.output_radius_ratio / geometry.coupler_ratio
+        if output_to_coupler > maximum_output_to_coupler_ratio * (1.0 + 1.0e-5):
+            raise ValueError(
+                "Search did not satisfy maximum_output_to_coupler_ratio."
+            )
+
     return ProjectionSearchResult(
         geometry=geometry,
         fit=fit,

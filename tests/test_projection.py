@@ -131,3 +131,47 @@ def test_search_recovers_a_synthetic_coupler_target():
     )
 
     assert result.fit.position_rms < 2e-5
+
+
+def test_search_respects_output_to_coupler_bound():
+    theta = angles(180)
+    true_geometry = geometry()
+    motion = evaluate_four_bar(theta, true_geometry)
+    position, derivative = projection_basis(motion, "coupler")
+
+    axis = 0.5
+    scale = 0.7
+    along = 1.1
+    normal = 0.2
+    coefficients = np.array(
+        (
+            0.05,
+            scale * math.cos(axis),
+            scale * math.sin(axis),
+            scale * (along * math.cos(axis) + normal * math.sin(axis)),
+            scale * (along * math.sin(axis) - normal * math.cos(axis)),
+        )
+    )
+    q = position @ coefficients
+    dq = derivative @ coefficients
+
+    result = search_projection(
+        theta,
+        q,
+        output_type="coupler",
+        assembly_branch=-1,
+        target_dq_dtheta=dq,
+        ratio_minimum=1.0,
+        ratio_maximum=2.6,
+        maximum_output_to_coupler_ratio=1.5,
+        maximum_iterations=30,
+        population_size=8,
+        seed=5,
+    )
+
+    assert result.fit.recovery is not None
+    ratio = (
+        result.fit.recovery.output_radius_ratio
+        / result.geometry.coupler_ratio
+    )
+    assert ratio <= 1.5 * (1.0 + 1.0e-5)

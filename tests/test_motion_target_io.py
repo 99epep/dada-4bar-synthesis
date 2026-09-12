@@ -71,3 +71,18 @@ def test_rejects_nonperiodic_duplicate_endpoint(tmp_path):
     csv_path, json_path = write_target(tmp_path, periodic=False)
     with pytest.raises(ValueError, match="not periodic duplicates"):
         load_solver_motion_target(csv_path, json_path)
+
+
+def test_rejects_legacy_centered_motion_with_uncentered_derivative(tmp_path):
+    csv_path, json_path = write_target(tmp_path)
+    metadata = json.loads(json_path.read_text(encoding="utf-8"))
+    metadata["recommended_mechanism_fit_coordinates"] = {
+        "small": "small_centered_minus1_plus1",
+        "large": "large_centered_minus1_plus1",
+        "derivative_small": "small_dq_dtheta_per_rad",
+        "derivative_large": "large_dq_dtheta_per_rad",
+    }
+    json_path.write_text(json.dumps(metadata), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Inconsistent legacy motion-target derivatives"):
+        load_solver_motion_target(csv_path, json_path)

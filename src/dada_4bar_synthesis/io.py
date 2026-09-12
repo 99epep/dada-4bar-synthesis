@@ -19,8 +19,8 @@ from .contracts import (
 _DEFAULT_FIT_COLUMNS = {
     "small": "small_centered_minus1_plus1",
     "large": "large_centered_minus1_plus1",
-    "derivative_small": "small_dq_dtheta_per_rad",
-    "derivative_large": "large_dq_dtheta_per_rad",
+    "derivative_small": "small_centered_dq_dtheta_per_rad",
+    "derivative_large": "large_centered_dq_dtheta_per_rad",
 }
 
 
@@ -70,6 +70,28 @@ def load_solver_motion_target(
     column_dsmall = str(recommended["derivative_small"])
     column_dlarge = str(recommended["derivative_large"])
 
+    if (
+        column_small == "small_centered_minus1_plus1"
+        and column_dsmall == "small_dq_dtheta_per_rad"
+    ) or (
+        column_large == "large_centered_minus1_plus1"
+        and column_dlarge == "large_dq_dtheta_per_rad"
+    ):
+        raise ValueError(
+            "Inconsistent legacy motion-target derivatives: centered motion "
+            "requires centered derivative columns. Regenerate the target with "
+            "the corrected dada-engine-solver exporter."
+        )
+
+    second_small = recommended.get("second_derivative_small")
+    second_large = recommended.get("second_derivative_large")
+    if (second_small is None) != (second_large is None):
+        raise ValueError(
+            "Target JSON must recommend both second-derivative columns or neither."
+        )
+    column_d2small = None if second_small is None else str(second_small)
+    column_d2large = None if second_large is None else str(second_large)
+
     theta: list[float] = []
     small: list[float] = []
     large: list[float] = []
@@ -82,10 +104,24 @@ def load_solver_motion_target(
         reader = csv.DictReader(stream)
         if reader.fieldnames is None:
             raise ValueError("Target CSV has no header.")
-        have_second = (
-            "small_d2q_dtheta2_per_rad2" in reader.fieldnames
-            and "large_d2q_dtheta2_per_rad2" in reader.fieldnames
-        )
+        if column_d2small is not None:
+            have_second = (
+                column_d2small in reader.fieldnames
+                and column_d2large in reader.fieldnames
+            )
+            if not have_second:
+                raise ValueError(
+                    "Target CSV is missing the second-derivative columns "
+                    "recommended by the target JSON."
+                )
+        else:
+            have_second = (
+                "small_d2q_dtheta2_per_rad2" in reader.fieldnames
+                and "large_d2q_dtheta2_per_rad2" in reader.fieldnames
+            )
+            if have_second:
+                column_d2small = "small_d2q_dtheta2_per_rad2"
+                column_d2large = "large_d2q_dtheta2_per_rad2"
         for row in reader:
             theta.append(_float(row, "theta_rad"))
             small.append(_float(row, column_small))
@@ -93,8 +129,10 @@ def load_solver_motion_target(
             dsmall.append(_float(row, column_dsmall))
             dlarge.append(_float(row, column_dlarge))
             if have_second:
-                d2small.append(_float(row, "small_d2q_dtheta2_per_rad2"))
-                d2large.append(_float(row, "large_d2q_dtheta2_per_rad2"))
+                assert column_d2small is not None
+                assert column_d2large is not None
+                d2small.append(_float(row, column_d2small))
+                d2large.append(_float(row, column_d2large))
 
     if len(theta) < 5:
         raise ValueError("Target CSV must contain at least five rows including 2*pi.")

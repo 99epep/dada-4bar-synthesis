@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "method": "projection_only_linear_output_fit",
+  "target_csv": "../dada-engine-solver/outputs/motor_champion_motion_target.csv",
+  "target_json": null,
+  "settings": {
+    "side": "both",
+    "output_type": "coupler",
+    "branch": "both",
+    "derivative_weight": 0.0,
+    "ratio_minimum": 0.2,
+    "ratio_maximum": 12.0,
+    "maximum_output_to_coupler_ratio": 2.0,
+    "maximum_iterations": 80,
+    "population_size": 10,
+    "seed": 27
+  },
+  "results": [
+    {
+      "side": "large",
+      "output_type": "coupler",
+      "assembly_branch": 1,
+      "geometry": {
+        "ground_ratio": 8.359671968674999,
+        "coupler_ratio": 1.897870687962384,
+        "rocker_ratio": 8.563169895973116,
+        "phase_rad": -0.6741136000009905,
+        "assembly_branch": 1,
+        "ground_pivot_angle_rad": 0.6741136000009905,
+        "rocker_pivot_x_ratio": 6.531081947972863,
+        "rocker_pivot_y_ratio": 5.218149481637481
+      },
+      "fit": {
+        "output_type": "coupler",
+        "coefficients": [
+          5.990419621690454,
+          8.070500016174,
+          -2.197683364186552,
+          14.045079930223556,
+          -6.699780033716463
+        ],
+        "position_rms": 0.0031399168322514726,
+        "derivative_rms": 0.01781474468614932,
+        "maximum_absolute_position_error": 0.007108823528191088,
+        "objective_rms": 0.0031399168322514726,
+        "recovery": {
+          "axis_angle_canonical_rad": -0.26586425841161787,
+          "axis_angle_shared_crank_rad": 0.40824934158937265,
+          "output_along_ratio": 1.8306134779274494,
+          "output_normal_ratio": 0.3316611413983441,
+          "normalized_projection_scale": 8.364375809364788,
+          "output_radius_ratio": 1.8604152273842753
+        }
+      },
+      "minimum_cross_product": 0.7137663933352593,
+      "outer_closure_margin": 1.1013686152605011,
+      "inner_closure_margin": 0.6943727606642662,
+      "optimizer_success": false,
+      "optimizer_message": "Maximum number of iterations has been exceeded.",
+      "function_evaluations": 3600,
+      "output_to_coupler_ratio": 0.9802644822876094
+    },
+    {
+      "side": "large",
+      "output_type": "coupler",
+      "assembly_branch": -1,
+      "geometry": {
+        "ground_ratio": 3.8675081050708857,
+        "coupler_ratio": 3.6534914681471298,
+        "rocker_ratio": 2.2603209381795493,
+        "phase_rad": -0.9489347818238646,
+        "assembly_branch": -1,
+        "ground_pivot_angle_rad": 0.9489347818238646,
+        "rocker_pivot_x_ratio": 2.2530138464498948,
+        "rocker_pivot_y_ratio": 3.1434928901612045
+      },
+      "fit": {
+        "output_type": "coupler",
+        "coefficients": [
+          12.980332313557511,
+          1.5259514936826761,
+          1.6596359833209757,
+          -5.932585086316983,
+          15.368691577461451
+        ],
+        "position_rms": 0.00385741876576479,
+        "derivative_rms": 0.02125615757522621,
+        "maximum_absolute_position_error": 0.00784462182237311,
+        "objective_rms": 0.00385741876576479,
+        "recovery": {
+          "axis_angle_canonical_rad": 0.8273389659523649,
+          "axis_angle_shared_crank_rad": 1.7762737477762296,
+          "output_along_ratio": 3.2370365684989806,
+          "output_normal_ratio": -6.550921998791563,
+          "normalized_projection_scale": 2.2545331131314468,
+          "output_radius_ratio": 7.3070503474419075
+        }
+      },
+      "minimum_cross_product": 0.7848680668777037,
+      "outer_closure_margin": 1.0463043012557929,
+      "inner_closure_margin": 1.4743375751033052,
+      "optimizer_success": false,
+      "optimizer_message": "Maximum number of iterations has been exceeded.",
+      "function_evaluations": 3365,
+      "output_to_coupler_ratio": 2.000018451157813
+    },
+    {
+      "side": "small",
+      "output_type": "coupler",
+      "assembly_branch": 1,
+      "geometry": {
+        "ground_ratio": 6.8304234786536915,
+        "coupler_ratio": 5.964504891527067,
+        "rocker_ratio": 4.288821002323779,
+        "phase_rad": 2.0633893638890815,
+        "assembly_branch": 1,
+        "ground_pivot_angle_rad": -2.0633893638890815,
+        "rocker_pivot_x_ratio": -3.230190766573802,
+        "rocker_pivot_y_ratio": -6.0183513115541
+      },
+      "fit": {
+        "output_type": "coupler",
+        "coefficients": [
+          -75.2360446624299,
+          -2.999091426646814,
+          6.817120994127499,
+          31.107654437299395,
+          83.22014113532667
+        ],
+        "position_rms": 0.01751912786361885,
+        "derivative_rms": 0.0730685631957543,
+        "maximum_absolute_position_error": 0.029529714908497207,
+        "objective_rms": 0.01751912786361885,
+        "recovery": {
+          "axis_angle_canonical_rad": 1.9852489030011582,
+          "axis_angle_shared_crank_rad": -0.07814046088792326,
+          "output_along_ratio": 8.546003778842696,
+          "output_normal_ratio": 8.322853760611519,
+          "normalized_projection_scale": 7.447663259973582,
+          "output_radius_ratio": 11.92912718133724
+        }
+      },
+      "minimum_cross_product": 0.9206282715719233,
+      "outer_closure_margin": 2.4229024151971545,
+      "inner_closure_margin": 4.154739589450403,
+      "optimizer_success": false,
+      "optimizer_message": "Maximum number of iterations has been exceeded.",
+      "function_evaluations": 3355,
+      "output_to_coupler_ratio": 2.000019682821163
+    },
+    {
+      "side": "small",
+      "output_type": "coupler",
+      "assembly_branch": -1,
+      "geometry": {
+        "ground_ratio": 6.7089982313795415,
+        "coupler_ratio": 8.658360845992595,
+        "rocker_ratio": 3.051927544920271,
+        "phase_rad": 2.960869498143425,
+        "assembly_branch": -1,
+        "ground_pivot_angle_rad": -2.960869498143425,
+        "rocker_pivot_x_ratio": -6.599735280458131,
+        "rocker_pivot_y_ratio": -1.2058820408854465
+      },
+      "fit": {
+        "output_type": "coupler",
+        "coefficients": [
+          -16.278376514619122,
+          0.683798065818511,
+          0.6535396988737974,
+          15.379011595467919,
+          -5.516407575676612
+        ],
+        "position_rms": 0.0176019137298749,
+        "derivative_rms": 0.0706400364701037,
+        "maximum_absolute_position_error": 0.03673379948756539,
+        "objective_rms": 0.0176019137298749,
+        "recovery": {
+          "axis_angle_canonical_rad": 0.7627762005979544,
+          "axis_angle_shared_crank_rad": -2.1980932975454706,
+          "output_along_ratio": 7.724370070909801,
+          "output_normal_ratio": 15.44986830748474,
+          "normalized_projection_scale": 0.9458826210588661,
+          "output_radius_ratio": 17.273225631334423
+        }
+      },
+      "minimum_cross_product": 0.20841873104827074,
+      "outer_closure_margin": 4.001290159533325,
+      "inner_closure_margin": 0.10256493030721803,
+      "optimizer_success": false,
+      "optimizer_message": "Maximum number of iterations has been exceeded.",
+      "function_evaluations": 3555,
+      "output_to_coupler_ratio": 1.9949764093430111
+    }
+  ]
+}
