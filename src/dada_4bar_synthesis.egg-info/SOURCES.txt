@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+src/dada_4bar_synthesis/__init__.py
+src/dada_4bar_synthesis/contracts.py
+src/dada_4bar_synthesis/io.py
+src/dada_4bar_synthesis.egg-info/PKG-INFO
+src/dada_4bar_synthesis.egg-info/SOURCES.txt
+src/dada_4bar_synthesis.egg-info/dependency_links.txt
+src/dada_4bar_synthesis.egg-info/requires.txt
+src/dada_4bar_synthesis.egg-info/top_level.txt
+tests/test_io_contract.py
