@@ -12,6 +12,17 @@ from .contracts import (
     SliderConstraintContract,
 )
 from .io import load_solver_free_kinematics_target, load_solver_motion_target
+from .projection import (
+    FourBarMotion,
+    NormalizedFourBarGeometry,
+    ProjectionFit,
+    ProjectionRecovery,
+    ProjectionSearchResult,
+    evaluate_four_bar,
+    fit_projection,
+    projection_basis,
+    search_projection,
+)
 
 __all__ = [
     "AssemblyContract",
@@ -25,4 +36,13 @@ __all__ = [
     "SliderConstraintContract",
     "load_solver_free_kinematics_target",
     "load_solver_motion_target",
+    "FourBarMotion",
+    "NormalizedFourBarGeometry",
+    "ProjectionFit",
+    "ProjectionRecovery",
+    "ProjectionSearchResult",
+    "evaluate_four_bar",
+    "fit_projection",
+    "projection_basis",
+    "search_projection",
 ]

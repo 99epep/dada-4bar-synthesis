@@ -1,0 +1,2 @@
+[console_scripts]
+dada-4bar-synthesis = dada_4bar_synthesis.cli:main
